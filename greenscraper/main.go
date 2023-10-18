@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/wrkode/greenscraper/cmd"
+	"github.com/cncf-tags/tag-env-tooling/greenscraper/cmd"
 	"regexp"
 	"sync"
 )
