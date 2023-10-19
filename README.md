@@ -4,7 +4,10 @@ This repository is part of the [CNCF Environmental Sustainability Technical Advi
 
 ## Projects
 
-*there are currently no projects in the repository - this section will be updated as soon as this changes*
+| Name         | Type        | Author                                            |
+|--------------|-------------|---------------------------------------------------|
+| GreenScraper | Web Scraper | William Rizzo [wrkode](https://github.com/wrkode) |
+
 
 ## Contributing
 
