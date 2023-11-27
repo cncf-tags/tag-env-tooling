@@ -17,6 +17,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Failed to read URLs from file: %v", err))
 	}
+	// Read exclusions from exclusions.txt
+	exclusions, err := cmd.ReadLinesFromFile("exclusions.txt")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to read exclusions from file: %v", err))
+	}
 
 	titleRegex := regexp.MustCompile(".*'>(.*?)<span class=\"vs\">.*")
 	keywordRegexes := make([]*regexp.Regexp, len(keywords))
@@ -25,15 +30,15 @@ func main() {
 	}
 
 	const concurrentLimit = 5
-	sem := make(chan struct{}, concurrentLimit) // semaphore pattern for limiting concurrency
+	sem := make(chan struct{}, concurrentLimit)
 	var wg sync.WaitGroup
 
 	for _, url := range urls {
 		wg.Add(1)
-		sem <- struct{}{} // acquire a token
+		sem <- struct{}{}
 		go func(u string) {
-			cmd.ProcessURL(u, keywordRegexes, titleRegex, &wg)
-			<-sem // release a token
+			cmd.ProcessURL(u, keywordRegexes, exclusions, titleRegex, &wg)
+			<-sem
 		}(url)
 	}
 

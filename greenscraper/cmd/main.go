@@ -29,16 +29,16 @@ func ReadLinesFromFile(filename string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func containsAnyOfKeywords(title string, keywords []string) bool {
-	for _, keyword := range keywords {
-		if contains := strings.Contains(title, keyword); contains {
+func containsAnyOfExclusions(title string, exclusions []string) bool {
+	for _, exclusion := range exclusions {
+		if strings.Contains(title, exclusion) {
 			return true
 		}
 	}
 	return false
 }
 
-func ProcessURL(url string, keywordRegexes []*regexp.Regexp, titleRegex *regexp.Regexp, wg *sync.WaitGroup) {
+func ProcessURL(url string, keywordRegexes []*regexp.Regexp, exclusions []string, titleRegex *regexp.Regexp, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	resp, err := http.Get(url)
@@ -66,7 +66,7 @@ func ProcessURL(url string, keywordRegexes []*regexp.Regexp, titleRegex *regexp.
 			if len(titleMatch) > 1 {
 				title := titleMatch[1]
 
-				if len(title) >= 40 && !encounteredTitles[title] && !containsBadgePickUp(title) {
+				if len(title) >= 40 && !encounteredTitles[title] && !containsAnyOfExclusions(title, exclusions) && !containsBadgePickUp(title) {
 					encounteredTitles[title] = true
 					talks = append(talks, "- "+title)
 				}
