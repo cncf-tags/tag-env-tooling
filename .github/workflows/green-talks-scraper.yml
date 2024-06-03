@@ -26,23 +26,22 @@ jobs:
       run: |
         chmod +x green-talks-scraper/scraper.sh
         ./green-talks-scraper/scraper.sh >> green-talks-scraper/talks.md
-    
+
     - name: Commit file
       run: |
         # Check if "talks.md" has been modified
         if git diff --name-only | grep "talks.md" || git ls-files --others --exclude-standard | grep "talks.md"; then
+            BRANCH_NAME="update-talks-$(date +'%Y%m%d%H%M')"
             git config --local user.email "workflow@green-talks-scraper.com"
             git config --local user.name "green-talks-scraper-workflow"
+            git checkout -b $BRANCH_NAME
             git add green-talks-scraper/talks.md
             git commit -m "Update the green talks list [skip actions]"
-            echo "FILE_COMMITTED=true" >> $GITHUB_ENV  # Set an environment variable
+            git remote set-url origin https://${GH_TOKEN}@github.com/cncf-tags/tag-env-tooling.git
+            git push --set-upstream origin $BRANCH_NAME -f
+            gh pr create --base main --head $BRANCH_NAME --title "Update the list of talks" --body "Update the list of talks"
         else
             echo "The list of talks is up to date"
         fi
-
-    - name: Push changes
-      if: env.FILE_COMMITTED == 'true'
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-        force: true
+      env:
+        GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
