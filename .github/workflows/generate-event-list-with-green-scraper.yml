@@ -10,6 +10,12 @@ on:
       - '.github/workflows/generate-event-list-with-green-scraper.yml'
       - 'green-talks-scraper/*'
       - '!green-talks-scraper/README.md'
+  pull_request:
+    paths:
+      - '.github/workflows/green-talks-scraper.yml'
+      - '.github/workflows/generate-event-list-with-green-scraper.yml'
+      - 'green-talks-scraper/*'
+      - '!green-talks-scraper/README.md'
 
 jobs:
   call-green-scraper-workflow:
