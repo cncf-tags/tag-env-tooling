@@ -1,0 +1,24 @@
+name: Green Scraper event list generation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/green-talks-scraper.yml'
+      - '.github/workflows/generate-event-list-with-green-scraper.yml'
+      - 'green-talks-scraper/*'
+      - '!green-talks-scraper/README.md'
+
+jobs:
+  call-green-scraper-workflow:
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/green-talks-scraper.yml
+    with:
+      output-path: 'green-talks-scraper/talks.md'
+      repository:  'cncf-tags/tag-env-tooling'
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
