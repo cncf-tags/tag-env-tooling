@@ -41,7 +41,7 @@ jobs:
             git checkout -b $BRANCH_NAME
             git add ${{ inputs.output-path }}
             git commit -s -m "docs: update event list with Green Scraper [skip actions]"
-            git remote set-url origin https://${GH_TOKEN}@github.com/${{ inputs.repository }}.git
+            git remote set-url origin https://${{ secrets.token }}@github.com/${{ inputs.repository }}.git
             git push --set-upstream origin $BRANCH_NAME -f
             gh pr create --base main --head $BRANCH_NAME --title "Update the list of talks" --body "Update the list of talks"
         else
