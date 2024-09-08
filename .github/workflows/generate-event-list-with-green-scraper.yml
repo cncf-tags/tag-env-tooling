@@ -27,4 +27,4 @@ jobs:
       output-path: 'green-talks-scraper/talks.md'
       repository:  'cncf-tags/tag-env-tooling'
     secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.GREENSCRAPER_WORKFLOW_TOKEN }}
