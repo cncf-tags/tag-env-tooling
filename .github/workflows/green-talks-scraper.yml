@@ -1,13 +1,17 @@
 name: Green Talks Scraper
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/green-talks-scraper.yml'
-      - 'green-talks-scraper/*'
-      - '!green-talks-scraper/README.md'
+  workflow_call:
+    inputs:
+      output-path:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+    secrets:
+      token:
+        required: true
 
 jobs:
   scrape:
@@ -19,29 +23,29 @@ jobs:
       with:
         persist-credentials: false
 
-    - name: Prepend line to talks.md
-      run: echo "### An automatically generated list of environmental sustainability-related talks at The Linux Foundation events" > green-talks-scraper/talks.md
+    - name: Prepend line to the output file
+      run: echo "### An automatically generated list of environmental sustainability-related talks at The Linux Foundation events" > ${{ inputs.output-path }}
 
-    - name: Run Scraper Script
+    - name: Run Green Scraper tool
       run: |
         chmod +x green-talks-scraper/scraper.sh
-        ./green-talks-scraper/scraper.sh >> green-talks-scraper/talks.md
+        ./green-talks-scraper/scraper.sh >> ${{ inputs.output-path }}
 
-    - name: Commit file
+    - name: Create pull request with updated event list
       run: |
-        # Check if "talks.md" has been modified
-        if git diff --name-only | grep "talks.md" || git ls-files --others --exclude-standard | grep "talks.md"; then
+        # Check if ${{ inputs.output-path }} has been modified
+        if git diff --name-only | grep ${{ inputs.output-path }} || git ls-files --others --exclude-standard | grep ${{ inputs.output-path }}; then
             BRANCH_NAME="update-talks-$(date +'%Y%m%d%H%M')"
             git config --local user.email "workflow@green-talks-scraper.com"
             git config --local user.name "green-talks-scraper-workflow"
             git checkout -b $BRANCH_NAME
-            git add green-talks-scraper/talks.md
-            git commit -m "Update the green talks list [skip actions]"
-            git remote set-url origin https://${GH_TOKEN}@github.com/cncf-tags/tag-env-tooling.git
+            git add ${{ inputs.output-path }}
+            git commit -s -m "docs: update event list with Green Scraper [skip actions]"
+            git remote set-url origin https://${{ secrets.token }}@github.com/${{ inputs.repository }}.git
             git push --set-upstream origin $BRANCH_NAME -f
             gh pr create --base main --head $BRANCH_NAME --title "Update the list of talks" --body "Update the list of talks"
         else
             echo "The list of talks is up to date"
         fi
       env:
-        GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.token }}
